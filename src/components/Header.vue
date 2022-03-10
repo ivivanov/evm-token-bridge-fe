@@ -46,8 +46,8 @@
             >
           </div>
           <input
-            v-if="!connected"
-            class="button is-primary"
+            v-else
+            class="button is-primary is-small"
             type="button"
             value="Connect Wallet"
             @click.prevent="$emit('connect')"

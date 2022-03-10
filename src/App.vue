@@ -8,22 +8,90 @@
       @connect="onConnect"
       @disconnect="resetApp"
     />
-    <div class="box">
-      <div v-if="connected">
-        <section class="hero">
-          <div class="hero-body">
-            <p class="title">
-              Hero title
-            </p>
-            <p class="subtitle">
-              Hero subtitle
-            </p>
+    <div
+      id="main"
+      class="columns is-centered"
+    >
+      <div class="column is-8">
+        <div class="box">
+          <div v-if="connected">
+            <h1 class="subtitle is-4 has-text-centered">
+              EVM Token Bridge
+            </h1>
+
+            <div class="field">
+              <label class="label">From</label>
+              <div class="control">
+                <div class="select">
+                  <select>
+                    <option>Select dropdown</option>
+                    <option>With options</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">To</label>
+              <div class="control">
+                <div class="select">
+                  <select>
+                    <option>Select dropdown</option>
+                    <option>With options</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Asset</label>
+              <div class="control">
+                <div class="select">
+                  <select>
+                    <option>Select dropdown</option>
+                    <option>With options</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Amount
+                <span class="tag is-info is-light is-pulled-right">Available: {{ balance }}</span>
+              </label>
+              <div class="control">
+                <input
+                  class="input"
+                  type="number"
+                  placeholder="Amount"
+                >
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Destination Address</label>
+              <div class="control">
+                <input
+                  class="input"
+                  type="text"
+                  placeholder="Address"
+                >
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="control has-text-right">
+                <button class="button is-link">
+                  Next
+                </button>
+              </div>
+            </div>
           </div>
-        </section>
+          <p v-else>
+            Please use Metamask to connect
+          </p>
+        </div>
       </div>
-      <p v-else>
-        Please use Metamask to connect
-      </p>
     </div>
     <Footer />
   </div>
@@ -56,7 +124,8 @@ export default {
       result: null,
       electionContract: null,
       info: null,
-      web3Modal: null
+      web3Modal: null,
+      balance: 0
     }
   },
   mounted () {
@@ -153,3 +222,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+#main {
+  margin: 50px 0 50px 0;
+}
+</style>
