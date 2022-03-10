@@ -4,12 +4,28 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "build": "yarn css && vue-cli-service build",
+    "lint": "vue-cli-service lint --fix",
+    "watch": "vue-cli-service build --mode development --watch",
+    "css": "sass --style compressed src/assets/scss/main.scss public/css/main.css"
   },
   "dependencies": {
+    "@ethersproject/address": "^5.5.0",
+    "@ethersproject/bignumber": "^5.5.0",
+    "@ethersproject/constants": "^5.5.0",
+    "@ethersproject/contracts": "^5.5.0",
+    "@ethersproject/hash": "^5.5.0",
+    "@ethersproject/providers": "^5.5.3",
+    "@walletconnect/web3-provider": "^1.7.4",
+    "axios": "^0.26.0",
+    "bignumber.js": "^9.0.2",
+    "blockies": "^0.0.2",
     "core-js": "^3.6.5",
-    "vue": "^3.0.0"
+    "ethers": "^5.5.4",
+    "noty": "^3.2.0-beta-deprecated",
+    "vue": "^3.0.0",
+    "web3": "^1.7.1",
+    "web3modal": "^1.9.5"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.15",
@@ -17,8 +33,10 @@
     "@vue/cli-service": "~4.5.15",
     "@vue/compiler-sfc": "^3.0.0",
     "babel-eslint": "^10.1.0",
+    "bulma": "^0.9.3",
     "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^7.0.0"
+    "eslint-plugin-vue": "^7.0.0",
+    "sass": "^1.49.9"
   },
   "eslintConfig": {
     "root": true,
