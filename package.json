@@ -1,11 +1,10 @@
 {
-  "name": "evm-token-bridge-fe",
+  "name": "token-bridge",
   "version": "0.1.0",
-  "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "yarn css && vue-cli-service build",
-    "lint": "vue-cli-service lint --fix",
+    "lint": "vue-cli-service lint",
     "watch": "vue-cli-service build --mode development --watch",
     "css": "sass --style compressed src/assets/scss/main.scss public/css/main.css"
   },
@@ -32,9 +31,13 @@
     "@vue/cli-plugin-eslint": "~4.5.15",
     "@vue/cli-service": "~4.5.15",
     "@vue/compiler-sfc": "^3.0.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.0.0",
     "babel-eslint": "^10.1.0",
     "bulma": "^0.9.3",
-    "eslint": "^6.7.2",
+    "eslint": "^7.0.0",
+    "eslint-config-standard": "^16.0.3",
     "eslint-plugin-vue": "^7.0.0",
     "sass": "^1.49.9"
   },
@@ -44,8 +47,8 @@
       "node": true
     },
     "extends": [
-      "plugin:vue/vue3-essential",
-      "eslint:recommended"
+      "plugin:vue/vue3-recommended",
+      "standard"
     ],
     "parserOptions": {
       "parser": "babel-eslint"
