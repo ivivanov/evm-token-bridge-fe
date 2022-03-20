@@ -2,11 +2,15 @@
   "name": "token-bridge",
   "version": "0.1.0",
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "serve": "yarn css && yarn abis && vue-cli-service serve",
     "build": "yarn css && vue-cli-service build",
     "lint": "vue-cli-service lint",
     "watch": "vue-cli-service build --mode development --watch",
-    "css": "sass --style compressed src/assets/scss/main.scss public/css/main.css"
+    "css": "sass --style compressed src/assets/scss/main.scss public/css/main.css",
+    "abis": "yarn acme-token && yarn main-escrow && yarn side-escrow",
+    "acme-token": "cp ../evm-token-bridge/artifacts/contracts/AcmeToken.sol/AcmeToken.json src/constants/abis/",
+    "main-escrow": "cp ../evm-token-bridge/artifacts/contracts/MainEscrow.sol/MainEscrow.json src/constants/abis/",
+    "side-escrow": "cp ../evm-token-bridge/artifacts/contracts/SideEscrow.sol/SideEscrow.json src/constants/abis/"
   },
   "dependencies": {
     "@ethersproject/address": "^5.5.0",
@@ -21,8 +25,9 @@
     "blockies": "^0.0.2",
     "core-js": "^3.6.5",
     "ethers": "^5.5.4",
-    "noty": "^3.2.0-beta-deprecated",
     "vue": "^3.0.0",
+    "vue-router": "^4.0.14",
+    "vuex": "^4.0.2",
     "web3": "^1.7.1",
     "web3modal": "^1.9.5"
   },
@@ -31,13 +36,14 @@
     "@vue/cli-plugin-eslint": "~4.5.15",
     "@vue/cli-service": "~4.5.15",
     "@vue/compiler-sfc": "^3.0.0",
+    "babel-eslint": "^10.1.0",
+    "bulma": "^0.9.3",
+    "bulma-toast": "^2.4.1",
+    "eslint": "^7.0.0",
+    "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.0.0",
-    "babel-eslint": "^10.1.0",
-    "bulma": "^0.9.3",
-    "eslint": "^7.0.0",
-    "eslint-config-standard": "^16.0.3",
     "eslint-plugin-vue": "^7.0.0",
     "sass": "^1.49.9"
   },

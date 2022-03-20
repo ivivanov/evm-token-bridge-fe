@@ -1,9 +1,4 @@
 import supportedChains from '../helpers/chains'
-import Noty from 'noty'
-import '../../node_modules/noty/lib/noty.css'
-import '../../node_modules/noty/lib/themes/mint.css'
-
-const NOTIFICATION_TIMEOUT = 3500
 
 export default {
   methods: {
@@ -132,15 +127,6 @@ export default {
       }
 
       return chainData
-    },
-
-    showNotification (text) {
-      new Noty({
-        text,
-        timeout: NOTIFICATION_TIMEOUT,
-        type: 'success'
-
-      }).show()
     }
   }
 }
