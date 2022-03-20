@@ -3,7 +3,7 @@ import { AddressZero } from '@ethersproject/constants'
 import { Contract } from '@ethersproject/contracts'
 
 class Ethers {
-  static isAddress(value) {
+  static isAddress (value) {
     try {
       return getAddress(value)
     } catch {
@@ -11,15 +11,15 @@ class Ethers {
     }
   }
 
-  static getSigner(library, account) {
+  static getSigner (library, account) {
     return library.getSigner(account).connectUnchecked()
   }
 
-  static getProviderOrSigner(library, account) {
+  static getProviderOrSigner (library, account) {
     return account ? Ethers.getSigner(library, account) : library
   }
 
-  static getContract(address, ABI, library, account) {
+  static getContract (address, ABI, library, account) {
     if (!Ethers.isAddress(address) || address === AddressZero) {
       throw Error(`Invalid 'address' parameter '${address}'.`)
     }

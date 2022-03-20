@@ -1,143 +1,160 @@
 <template>
-  <div class="section">
+  <div class="container is-max-desktop">
     <Header
-      :connected="connected"
-      :address="address"
-      :networkName="networkName"
-      :chainId="chainId"
       @connect="onConnect"
       @disconnect="resetApp"
     />
-  </div>
-  <div class="box">
-    <p v-if="!connected">Please use Metamask to connect</p>
-  </div>
-  <div class="section">
+    <div
+      id="main"
+      class="columns is-centered"
+    >
+      <div class="column is-8">
+        <div class="box">
+          <router-view v-if="connected" />
+          <p v-else>
+            Please use Metamask to connect
+          </p>
+        </div>
+      </div>
+    </div>
     <Footer />
   </div>
 </template>
 
 <script>
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
-import utilities from "@/mixins/utilities.js";
+import Web3Modal from 'web3modal'
+import { Web3Provider } from '@ethersproject/providers'
+import WalletConnectProvider from '@walletconnect/web3-provider'
+import { mapState } from 'vuex'
 
-import Web3Modal from "web3modal"
-import { Web3Provider } from "@ethersproject/providers"
-import WalletConnectProvider from "@walletconnect/web3-provider"
+import Header from '@/components/Header'
+import Footer from '@/components/Footer'
+import utilities from '@/mixins/utilities.js'
+import toasts from '@/mixins/toasts.js'
 
 export default {
-  mixins: [utilities],
   components: {
     Header,
-    Footer,
+    Footer
   },
-  data() {
+  mixins: [
+    utilities,
+    toasts
+  ],
+  data () {
     return {
-      fetching: false,
-      address: '',
-      library: null,
-      connected: false,
-      chainId: 1,
-      networkName: '',
-      pendingRequest: false,
-      result: null,
-      electionContract: null,
-      info: null,
-      web3Modal: null,
+      web3Modal: null
     }
   },
-  mounted() {
+  computed: mapState([
+    'connected'
+  ]),
+  mounted () {
     this.web3Modal = new Web3Modal({
       network: this.getNetwork(),
       cacheProvider: true,
-      providerOptions: this.getProviderOptions(),
+      providerOptions: this.getProviderOptions()
     })
   },
   methods: {
-    async onConnect() {
-      this.provider = await this.web3Modal.connect()
-      const library = new Web3Provider(this.provider)
+    async onConnect () {
+      let provider
+      try {
+        provider = await this.web3Modal.connect()
+      } catch (err) {
+        console.log(err)
+        this.errorToast('Check your Metamask extension')
+        return
+      }
+
+      const library = new Web3Provider(provider)
       const network = await library.getNetwork()
-      const address = this.provider.selectedAddress ? this.provider.selectedAddress : this.provider.accounts[0]
+      const walletAddress = provider.selectedAddress ? provider.selectedAddress : provider.accounts[0]
 
-      this.library = library
-      this.chainId = network.chainId
-      this.networkName = network.name
-      this.address = address
-      this.connected = true
+      this.$store.commit('updateProvider', provider)
+      this.$store.commit('updateLibrary', library)
+      this.$store.commit('updateNetwork', network)
+      this.$store.commit('updateWalletAddress', walletAddress)
+      this.$store.commit('updateChainId', network.chainId)
+      this.$store.commit('updateNetworkName', network.name)
+      this.$store.commit('updateConnected', true)
 
-      await this.subscribeToProviderEvents(this.provider)
+      await this.subscribeToProviderEvents()
+      this.$router.push({ name: 'bridge' })
     },
-    async subscribeToProviderEvents(provider) {
+    async subscribeToProviderEvents () {
+      const provider = this.$store.state.provider
       if (!provider.on) {
         return
       }
 
-      provider.on("accountsChanged", this.changedAccount)
-      provider.on("networkChanged", this.networkChanged)
-      provider.on("close", this.close)
-
-      await this.web3Modal.off("accountsChanged")
+      provider.on('accountsChanged', this.changedAccount)
+      provider.on('networkChanged', this.networkChanged)
+      provider.on('close', this.close)
     },
-    async unSubscribe(provider) {
+    async unsubscribeFromProviderEvents () {
       // Workaround for metamask widget > 9.0.3 (provider.off is undefined)
+      const provider = this.$store.state.provider
       window.location.reload(false)
       if (!provider.off) {
         return
       }
 
-      provider.off("accountsChanged", this.changedAccount)
-      provider.off("networkChanged", this.networkChanged)
-      provider.off("close", this.close)
+      provider.off('accountsChanged', this.changedAccount)
+      provider.off('networkChanged', this.networkChanged)
+      provider.off('close', this.close)
     },
-    async changedAccount(accounts) {
+    async changedAccount (accounts) {
       if (!accounts.length) {
         // Metamask Lock fire an empty accounts array
         await this.resetApp()
       } else {
-        this.address = accounts[0]
+        this.$store.commit('updateWalletAddress', accounts[0])
       }
     },
-    async networkChanged() {
-      const library = new Web3Provider(this.provider)
+    async networkChanged () {
+      const library = new Web3Provider(this.$store.state.provider)
       const network = await library.getNetwork()
 
-      this.library = library
-      this.chainId = network.chainId
+      this.$store.commit('updateLibrary', library)
+      this.$store.commit('updateChainId', network.chainId)
     },
-    async close() {
+    async close () {
       this.resetApp()
     },
-    getNetwork() {
-      this.getChainData(this.chainId).network
+    getNetwork () {
+      return this.getChainData(this.$store.state.chainId).network
     },
-    getProviderOptions() {
+    getProviderOptions () {
       const providerOptions = {
         walletconnect: {
           package: WalletConnectProvider,
           options: {
-            infuraId: process.env.REACT_APP_INFURA_ID,
-          },
-        },
+            // todo setup env var infura ID
+            // infuraId: process.env.REACT_APP_INFURA_ID
+          }
+        }
       }
+
       return providerOptions
     },
-    async resetApp() {
+    async resetApp () {
       await this.web3Modal.clearCachedProvider()
-      localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER")
-      localStorage.removeItem("walletconnect")
-      await this.unSubscribe(this.provider)
-      this.fetching = false
-      this.address = ""
-      this.library = null
-      this.connected = false
-      this.chainId = 1
-      this.pendingRequest = false
-      this.result = null
-      this.electionContract = null
-      this.info = null
-    },
-  },
+      localStorage.removeItem('WEB3_CONNECT_CACHED_PROVIDER')
+      localStorage.removeItem('walletconnect')
+      await this.unsubscribeFromProviderEvents()
+      this.$store.commit('resetStore')
+    }
+  }
 }
 </script>
+
+<style>
+#main {
+  margin: 50px 0 50px 0;
+}
+
+.web3modal-modal-lightbox{
+  z-index: 10000 !important;
+}
+</style>

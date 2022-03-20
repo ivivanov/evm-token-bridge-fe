@@ -1,10 +1,10 @@
 <template>
   <footer class="footer">
     <div class="has-text-centered">
-        <strong>EVM Token Bridge</strong> by
-        <a href="https://github.com/ivivanov">Ivan</a>. The source code is
-        licensed
-        <a href="http://opensource.org/licenses/mit-license.php">MIT</a>
+      <strong>EVM Token Bridge</strong> by
+      <a href="https://github.com/ivivanov">Ivan</a>. The source code is
+      licensed
+      <a href="http://opensource.org/licenses/mit-license.php">MIT</a>
     </div>
   </footer>
 </template>

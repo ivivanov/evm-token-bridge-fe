@@ -1,20 +1,15 @@
-import supportedChains from "../helpers/chains"
-import Noty from 'noty'
-import '../../node_modules/noty/lib/noty.css'
-import '../../node_modules/noty/lib/themes/mint.css'
-
-const NOTIFICATION_TIMEOUT = 3500
+import supportedChains from '../helpers/chains'
 
 export default {
   methods: {
-    capitalize(string) {
+    capitalize (string) {
       return string
-        .split(" ")
+        .split(' ')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(" ")
+        .join(' ')
     },
 
-    ellipseText(text = "", maxLength = 9999) {
+    ellipseText (text = '', maxLength = 9999) {
       if (text.length <= maxLength) {
         return text
       }
@@ -24,7 +19,7 @@ export default {
       let currentLength = 0
       const result =
         text
-          .split(" ")
+          .split(' ')
           .filter(word => {
             currentLength += word.length
             if (ellipse || currentLength >= _maxLength) {
@@ -34,39 +29,38 @@ export default {
               return true
             }
           })
-          .join(" ") + "..."
+          .join(' ') + '...'
 
       return result
     },
 
-    ellipseAddress(address = "", width = 10) {
+    ellipseAddress (address = '', width = 10) {
       return `${address.slice(0, width)}...${address.slice(-width)}`
     },
 
-    sanitizeHex(hex) {
-      hex = hex.substring(0, 2) === "0x" ? hex.substring(2) : hex
-      if (hex === "") {
-        return ""
+    sanitizeHex (hex) {
+      hex = hex.substring(0, 2) === '0x' ? hex.substring(2) : hex
+      if (hex === '') {
+        return ''
       }
-      hex = hex.length % 2 !== 0 ? "0" + hex : hex
+      hex = hex.length % 2 !== 0 ? '0' + hex : hex
 
-      return "0x" + hex
+      return '0x' + hex
     },
 
-    removeHexPrefix(hex) {
-      return hex.toLowerCase().replace("0x", "")
+    removeHexPrefix (hex) {
+      return hex.toLowerCase().replace('0x', '')
     },
 
-    getDataString(func, arrVals) {
-
+    getDataString (func, arrVals) {
       const padLeft = (n, width, z) => {
-        z = z || "0"
-        n = n + ""
+        z = z || '0'
+        n = n + ''
 
         return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n
       }
 
-      let val = ""
+      let val = ''
       for (let i = 0; i < arrVals.length; i++) {
         val += padLeft(arrVals[i], 64)
       }
@@ -75,12 +69,12 @@ export default {
       return data
     },
 
-    isMobile() {
+    isMobile () {
       let mobile = false
 
       const hasTouchEvent = () => {
         try {
-          document.createEvent("TouchEvent")
+          document.createEvent('TouchEvent')
           return true
         } catch (e) {
           return false
@@ -108,7 +102,7 @@ export default {
       return mobile
     },
 
-    getChainData(chainId) {
+    getChainData (chainId) {
       let chainData = supportedChains.filter(
         (chain) => chain.chain_id === chainId
       )[0]
@@ -120,11 +114,11 @@ export default {
       const API_KEY = process.env.REACT_APP_INFURA_ID
 
       if (
-        chainData.rpc_url.includes("infura.io") &&
-        chainData.rpc_url.includes("%API_KEY%") &&
+        chainData.rpc_url.includes('infura.io') &&
+        chainData.rpc_url.includes('%API_KEY%') &&
         API_KEY
       ) {
-        const rpcUrl = chainData.rpc_url.replace("%API_KEY%", API_KEY)
+        const rpcUrl = chainData.rpc_url.replace('%API_KEY%', API_KEY)
 
         return {
           ...chainData,
@@ -133,15 +127,6 @@ export default {
       }
 
       return chainData
-    },
-
-    showNotification(text) {
-      new Noty({
-        text,
-        timeout: NOTIFICATION_TIMEOUT,
-        type: 'success'
-
-      }).show()
-    },
+    }
   }
 }
