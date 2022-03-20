@@ -7,7 +7,7 @@
     <div class="navbar-brand">
       <img
         src="/img/logo.png"
-        width="80"
+        width="50"
       >
       <a
         role="button"
@@ -26,7 +26,26 @@
       id="navbarBasicExample"
       class="navbar-menu"
     >
-      <div class="navbar-start" />
+      <div
+        v-if="connected"
+        class="navbar-start"
+      >
+        <div class="navbar-item">
+          <router-link :to="{ name: 'bridge' }">
+            Bridge
+          </router-link>
+        </div>
+        <div class="navbar-item">
+          <router-link :to="{ name: 'claim' }">
+            Claim
+          </router-link>
+        </div>
+        <div class="navbar-item">
+          <router-link :to="{ name: 'faucet' }">
+            Faucet
+          </router-link>
+        </div>
+      </div>
 
       <div class="navbar-end">
         <div class="navbar-item">
@@ -36,7 +55,7 @@
             :alt="address"
           >
           <div v-if="connected">
-            <span class="tag is-info is-light is-medium">{{ ellipseAddress(address) }}</span>
+            <span class="tag is-info is-light is-medium">{{ ellipseAddress(walletAddress) }}</span>
             <span class="tag is-info is-light is-medium">{{ chainData.name }}</span>
             <input
               class="button is-primary is-small"
@@ -59,26 +78,12 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import blockies from 'blockies'
 import utilities from '@/mixins/utilities.js'
 
 export default {
   mixins: [utilities],
-  props: {
-    connected: Boolean,
-    address: {
-      type: String,
-      default: ''
-    },
-    networkName: {
-      type: String,
-      default: ''
-    },
-    chainId: {
-      type: Number,
-      default: 1
-    }
-  },
   emits: [
     'connect',
     'disconnect'
@@ -89,18 +94,20 @@ export default {
       blockie: ''
     }
   },
+  computed: mapState([
+    'connected',
+    'walletAddress',
+    'networkName',
+    'chainId'
+  ]),
   watch: {
-    address () {
-      const seed = this.address.toLowerCase() || ''
-      this.blockie = blockies({
-        seed
-      }).toDataURL('image/png')
+    walletAddress () {
+      const seed = this.$store.state.walletAddress.toLowerCase() || ''
+      this.blockie = blockies({ seed }).toDataURL('image/png')
     },
     chainId () {
       this.chainData = this.chainId ? this.getChainData(this.chainId) : null
     }
-  },
-  mounted () {
   }
 }
 </script>

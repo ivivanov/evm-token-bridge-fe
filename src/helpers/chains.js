@@ -1,7 +1,7 @@
 const supportedChains = [
   {
-    name: 'Unknown Network',
-    short_name: 'UNK',
+    name: 'Localhost',
+    short_name: 'loc',
     chain: 'ETH',
     network: 'local',
     chain_id: -1,
