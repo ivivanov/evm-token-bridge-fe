@@ -7,9 +7,9 @@ import MainEscrow from '../constants/abis/MainEscrow.json'
 // import SideEscrow from '../constants/abis/SideEscrow.json'
 
 class WalletService {
-  static async getAcmeBalance (library, address) {
-    const acme = getContract(ACME_TOKEN_ADDRESS, AcmeToken.abi, library, address)
-    const balance = await acme.balanceOf(address)
+  static async getAcmeBalance (library, account) {
+    const acme = getContract(ACME_TOKEN_ADDRESS, AcmeToken.abi, library, account)
+    const balance = await acme.balanceOf(account)
     return ethers.utils.formatUnits(balance, 18)
   }
 

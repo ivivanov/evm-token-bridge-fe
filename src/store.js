@@ -4,7 +4,7 @@ const initialState = {
   provider: {},
   library: {},
   network: {},
-  walletAddress: '',
+  account: '',
   fetching: false,
   connected: false,
   chainId: 1,
@@ -26,8 +26,8 @@ const Store = createStore({
     updateNetwork (state, value) {
       state.network = value
     },
-    updateWalletAddress (state, value) {
-      state.walletAddress = value
+    updateAccount (state, value) {
+      state.account = value
     },
     updateFetching (state, value) {
       state.fetching = value

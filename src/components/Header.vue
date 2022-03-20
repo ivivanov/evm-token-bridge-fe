@@ -55,7 +55,7 @@
             :alt="address"
           >
           <div v-if="connected">
-            <span class="tag is-info is-light is-medium">{{ ellipseAddress(walletAddress) }}</span>
+            <span class="tag is-info is-light is-medium">{{ ellipseAddress(account) }}</span>
             <span class="tag is-info is-light is-medium">{{ chainData.name }}</span>
             <input
               class="button is-primary is-small"
@@ -96,13 +96,13 @@ export default {
   },
   computed: mapState([
     'connected',
-    'walletAddress',
+    'account',
     'networkName',
     'chainId'
   ]),
   watch: {
-    walletAddress () {
-      const seed = this.$store.state.walletAddress.toLowerCase() || ''
+    account () {
+      const seed = this.$store.state.account.toLowerCase() || ''
       this.blockie = blockies({ seed }).toDataURL('image/png')
     },
     chainId () {

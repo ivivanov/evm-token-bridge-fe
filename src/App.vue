@@ -69,12 +69,12 @@ export default {
 
       const library = new Web3Provider(provider)
       const network = await library.getNetwork()
-      const walletAddress = provider.selectedAddress ? provider.selectedAddress : provider.accounts[0]
+      const account = provider.selectedAddress ? provider.selectedAddress : provider.accounts[0]
 
       this.$store.commit('updateProvider', provider)
       this.$store.commit('updateLibrary', library)
       this.$store.commit('updateNetwork', network)
-      this.$store.commit('updateWalletAddress', walletAddress)
+      this.$store.commit('updateAccount', account)
       this.$store.commit('updateChainId', network.chainId)
       this.$store.commit('updateNetworkName', network.name)
       this.$store.commit('updateConnected', true)
@@ -109,7 +109,7 @@ export default {
         // Metamask Lock fire an empty accounts array
         await this.resetApp()
       } else {
-        this.$store.commit('updateWalletAddress', accounts[0])
+        this.$store.commit('updateAccount', accounts[0])
       }
     },
     async networkChanged () {
@@ -117,6 +117,7 @@ export default {
       const network = await library.getNetwork()
 
       this.$store.commit('updateLibrary', library)
+      this.$store.commit('updateNetwork', network)
       this.$store.commit('updateChainId', network.chainId)
     },
     async close () {
