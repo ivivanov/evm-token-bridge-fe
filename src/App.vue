@@ -43,7 +43,16 @@ export default {
   ],
   data () {
     return {
-      web3Modal: null
+      web3Modal: null,
+      providerOptions: {
+        walletconnect: {
+          package: WalletConnectProvider,
+          options: {
+            // todo setup env var infura ID
+            infuraId: 'process.env.REACT_APP_INFURA_ID'
+          }
+        }
+      }
     }
   },
   computed: mapState([
@@ -53,7 +62,7 @@ export default {
     this.web3Modal = new Web3Modal({
       network: this.getNetwork(),
       cacheProvider: true,
-      providerOptions: this.getProviderOptions()
+      providerOptions: this.providerOptions
     })
   },
   methods: {
@@ -125,19 +134,6 @@ export default {
     },
     getNetwork () {
       return this.getChainData(this.$store.state.chainId).network
-    },
-    getProviderOptions () {
-      const providerOptions = {
-        walletconnect: {
-          package: WalletConnectProvider,
-          options: {
-            // todo setup env var infura ID
-            // infuraId: process.env.REACT_APP_INFURA_ID
-          }
-        }
-      }
-
-      return providerOptions
     },
     async resetApp () {
       await this.web3Modal.clearCachedProvider()
