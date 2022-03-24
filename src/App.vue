@@ -19,18 +19,45 @@
     </div>
     <Footer />
   </div>
+
+  <!-- Loader modal -->
+  <div
+    v-if="fetching"
+    class="modal is-active is-loader"
+  >
+    <div
+      class="modal-background"
+    />
+    <div class="modal-content">
+      <div class="section">
+        <div class="container">
+          <div class="columns">
+            <div class="column is-6 is-offset-3">
+              <div class="box">
+                <div class="loader-wrapper is-active">
+                  <div class="loader is-loading" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
 import Web3Modal from 'web3modal'
 import { Web3Provider } from '@ethersproject/providers'
 import WalletConnectProvider from '@walletconnect/web3-provider'
+import { markRaw } from '@vue/reactivity'
 import { mapState } from 'vuex'
 
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import utilities from '@/mixins/utilities.js'
-import toasts from '@/mixins/toasts.js'
+import utilities from '@/mixins/utilities'
+import toasts from '@/mixins/toasts'
+import { getChainData } from '@/constants/chains'
 
 export default {
   components: {
@@ -43,20 +70,23 @@ export default {
   ],
   data () {
     return {
-      web3Modal: null,
       providerOptions: {
         walletconnect: {
           package: WalletConnectProvider,
           options: {
-            // todo setup env var infura ID
-            infuraId: 'process.env.REACT_APP_INFURA_ID'
+            infuraId: process.env.VUE_APP_INFURA_ID
           }
         }
-      }
+      },
+      web3Modal: null,
+      provider: null,
+      library: null,
+      network: null
     }
   },
   computed: mapState([
-    'connected'
+    'connected',
+    'fetching'
   ]),
   mounted () {
     this.web3Modal = new Web3Modal({
@@ -67,32 +97,27 @@ export default {
   },
   methods: {
     async onConnect () {
-      let provider
       try {
-        provider = await this.web3Modal.connect()
+        this.provider = await this.web3Modal.connect()
       } catch (err) {
         console.log(err)
         this.errorToast('Check your Metamask extension')
         return
       }
 
-      const library = new Web3Provider(provider)
-      const network = await library.getNetwork()
-      const account = provider.selectedAddress ? provider.selectedAddress : provider.accounts[0]
+      this.library = markRaw(new Web3Provider(this.provider))
+      this.network = markRaw(await this.library.getNetwork())
+      const account = this.provider.selectedAddress ? this.provider.selectedAddress : this.provider.accounts[0]
 
-      this.$store.commit('updateProvider', provider)
-      this.$store.commit('updateLibrary', library)
-      this.$store.commit('updateNetwork', network)
       this.$store.commit('updateAccount', account)
-      this.$store.commit('updateChainId', network.chainId)
-      this.$store.commit('updateNetworkName', network.name)
+      this.$store.commit('updateChainId', this.network.chainId)
       this.$store.commit('updateConnected', true)
 
       await this.subscribeToProviderEvents()
       this.$router.push({ name: 'bridge' })
     },
     async subscribeToProviderEvents () {
-      const provider = this.$store.state.provider
+      const provider = this.provider
       if (!provider.on) {
         return
       }
@@ -103,7 +128,7 @@ export default {
     },
     async unsubscribeFromProviderEvents () {
       // Workaround for metamask widget > 9.0.3 (provider.off is undefined)
-      const provider = this.$store.state.provider
+      const provider = this.provider
       window.location.reload(false)
       if (!provider.off) {
         return
@@ -122,18 +147,15 @@ export default {
       }
     },
     async networkChanged () {
-      const library = new Web3Provider(this.$store.state.provider)
-      const network = await library.getNetwork()
-
-      this.$store.commit('updateLibrary', library)
-      this.$store.commit('updateNetwork', network)
-      this.$store.commit('updateChainId', network.chainId)
+      this.library = markRaw(new Web3Provider(this.provider))
+      this.network = markRaw(await this.library.getNetwork())
+      this.$store.commit('updateChainId', this.network.chainId)
     },
     async close () {
       this.resetApp()
     },
     getNetwork () {
-      return this.getChainData(this.$store.state.chainId).network
+      return getChainData(this.$store.state.chainId).network
     },
     async resetApp () {
       await this.web3Modal.clearCachedProvider()

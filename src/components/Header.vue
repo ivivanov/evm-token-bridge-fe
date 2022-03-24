@@ -80,7 +80,8 @@
 <script>
 import { mapState } from 'vuex'
 import blockies from 'blockies'
-import utilities from '@/mixins/utilities.js'
+import utilities from '@/mixins/utilities'
+import { getChainData } from '@/constants/chains'
 
 export default {
   mixins: [utilities],
@@ -97,7 +98,6 @@ export default {
   computed: mapState([
     'connected',
     'account',
-    'networkName',
     'chainId'
   ]),
   watch: {
@@ -106,7 +106,7 @@ export default {
       this.blockie = blockies({ seed }).toDataURL('image/png')
     },
     chainId () {
-      this.chainData = this.chainId ? this.getChainData(this.chainId) : null
+      this.chainData = this.chainId ? getChainData(this.chainId) : null
     }
   }
 }

@@ -1,4 +1,4 @@
-const supportedChains = [
+export const supportedChains = [
   {
     name: 'Localhost',
     short_name: 'loc',
@@ -213,4 +213,29 @@ const supportedChains = [
   }
 ]
 
-export default supportedChains
+export function getChainData (chainId) {
+  let chainData = supportedChains.filter(
+    (chain) => chain.chain_id === chainId
+  )[0]
+
+  if (!chainData) {
+    chainData = supportedChains[0]
+  }
+
+  const API_KEY = process.env.VUE_APP_INFURA_ID
+
+  if (
+    chainData.rpc_url.includes('infura.io') &&
+    chainData.rpc_url.includes('%API_KEY%') &&
+    API_KEY
+  ) {
+    const rpcUrl = chainData.rpc_url.replace('%API_KEY%', API_KEY)
+
+    return {
+      ...chainData,
+      rpc_url: rpcUrl
+    }
+  }
+
+  return chainData
+}

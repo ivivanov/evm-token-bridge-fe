@@ -6,15 +6,13 @@
   <div class="field">
     <label class="label">From</label>
     <div class="control">
-      <div class="select is-fullwidth">
-        <select v-model="form.from">
-          <option value="3">
-            Ropsten
-          </option>
-          <option value="4">
-            Rinkeby
-          </option>
-        </select>
+      <div class="control">
+        <input
+          class="input"
+          type="text"
+          :value="fromChainData.name"
+          disabled
+        >
       </div>
     </div>
   </div>
@@ -23,12 +21,19 @@
     <label class="label">To</label>
     <div class="control">
       <div class="select is-fullwidth">
-        <select v-model="form.to">
-          <option value="4">
-            Rinkeby
+        <select v-model="toChainId">
+          <option
+            disabled
+            value="-2"
+          >
+            Please select one
           </option>
-          <option value="3">
-            Ropsten
+          <option
+            v-for="(chain, key) in supportedChains"
+            :key="key"
+            :value="chain.chain_id"
+          >
+            {{ chain.name }}
           </option>
         </select>
       </div>
@@ -39,9 +44,25 @@
     <label class="label">Asset</label>
     <div class="control">
       <div class="select is-fullwidth">
-        <select v-model="form.asset">
-          <option value="ACM">
-            Acme ACM
+        <select
+          v-model="selectedAsset"
+          @change="getBalance"
+        >
+          <option
+            disabled
+            value=""
+          >
+            Please select one
+          </option>
+          <option value="">
+            ETH
+          </option>
+          <option
+            v-for="(token, key) in tokens"
+            :key="key"
+            :value="token"
+          >
+            {{ token.symbol }}
           </option>
         </select>
       </div>
@@ -50,11 +71,11 @@
 
   <div class="field">
     <label class="label">Amount
-      <span class="tag is-info is-light is-pulled-right">Available: {{ form.acmeBalance }}</span>
+      <span class="tag is-info is-light is-pulled-right">Balance: {{ selectedBalance }}</span>
     </label>
     <div class="control">
       <input
-        v-model="form.amount"
+        v-model="amount"
         class="input"
         type="number"
         placeholder="Amount"
@@ -75,27 +96,71 @@
 </template>
 
 <script>
-// import WalletService from '@/services/wallet.js'
+import { mapState } from 'vuex'
+import WalletService from '@/services/wallet'
+import loader from '@/mixins/loader'
+import utilities from '@/mixins/utilities'
+import { getChainData, supportedChains } from '@/constants/chains'
+import getChainContracts from '@/constants/contracts'
+
+const dataInitialState = function () {
+  return {
+    fromChainData: {},
+    supportedChains: supportedChains,
+    toChainId: -2,
+    selectedAsset: '',
+    selectedBalance: '0.0',
+    tokens: [],
+    amount: ''
+  }
+}
 
 export default {
+  mixins: [
+    loader,
+    utilities
+  ],
   data () {
-    return {
-      form: {
-        from: '4',
-        to: '3',
-        asset: 'ACM',
-        acmeBalance: 0.0,
-        amount: ''
-      }
+    return dataInitialState()
+  },
+  computed: mapState([
+    'chainId'
+  ]),
+  watch: {
+    chainId () {
+      this.resetData()
+      this.fetchPageData()
     }
   },
   async mounted () {
-    // this.form.acmeBalance = await WalletService.getAcmeBalance(library, address)
+    this.fetchPageData()
   },
   methods: {
+    fetchPageData () {
+      this.toggleLoader()
+      this.fromChainData = getChainData(this.chainId)
+      this.fromChainId = this.$store.state.chainId
+
+      const contracts = getChainContracts(this.fromChainId)
+      if (contracts && contracts.mainEscrow) {
+        this.tokens = contracts.tokens
+      } else {
+        // todo fetch tokens from smart contract - 'getSupportedTokens'
+        this.tokens = []
+      }
+      this.toggleLoader()
+    },
+    resetData: function () {
+      Object.assign(this.$data, dataInitialState())
+    },
+    async getBalance () {
+      this.toggleLoader()
+      const address = this.selectedAsset.address ? this.selectedAsset.address : ''
+      this.selectedBalance = await WalletService.getTokenBalance(address)
+      this.toggleLoader()
+    },
     async confirmLock () {
-      this.fetching = true
-      // await WalletService.lockAmount(this.library, this.address, this.form.amount)
+      await WalletService.lockAmount(this.library, this.address, this.amount)
     }
   }
 }

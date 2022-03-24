@@ -8,7 +8,7 @@
     "watch": "vue-cli-service build --mode development --watch",
     "css": "sass --style compressed src/assets/scss/main.scss public/css/main.css",
     "abis": "yarn acme-token && yarn main-escrow && yarn side-escrow",
-    "acme-token": "cp ../evm-token-bridge/artifacts/contracts/AcmeToken.sol/AcmeToken.json src/constants/abis/",
+    "acme-token": "cp ../evm-token-bridge/artifacts/contracts/AcmeToken.sol/AcmeToken.json src/constants/abis/ERC20Token.json",
     "main-escrow": "cp ../evm-token-bridge/artifacts/contracts/MainEscrow.sol/MainEscrow.json src/constants/abis/",
     "side-escrow": "cp ../evm-token-bridge/artifacts/contracts/SideEscrow.sol/SideEscrow.json src/constants/abis/"
   },
