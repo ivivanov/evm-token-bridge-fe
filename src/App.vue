@@ -78,10 +78,7 @@ export default {
           }
         }
       },
-      web3Modal: null,
-      provider: null,
-      library: null,
-      network: null
+      web3Modal: null
     }
   },
   computed: mapState([
@@ -97,26 +94,29 @@ export default {
   },
   methods: {
     async onConnect () {
+      let provider
       try {
-        this.provider = await this.web3Modal.connect()
+        provider = markRaw(await this.web3Modal.connect())
       } catch (err) {
         this.errorToast(err)
         return
       }
 
-      this.library = markRaw(new Web3Provider(this.provider))
-      this.network = markRaw(await this.library.getNetwork())
-      const account = this.provider.selectedAddress ? this.provider.selectedAddress : this.provider.accounts[0]
+      const library = markRaw(new Web3Provider(provider))
+      const network = markRaw(await library.getNetwork())
+      const account = provider.selectedAddress ? provider.selectedAddress : provider.accounts[0]
 
+      this.$store.commit('updateProvider', provider)
+      this.$store.commit('updateLibrary', library)
       this.$store.commit('updateAccount', account)
-      this.$store.commit('updateChainId', this.network.chainId)
+      this.$store.commit('updateChainId', network.chainId)
       this.$store.commit('updateConnected', true)
 
       await this.subscribeToProviderEvents()
       this.$router.push({ name: 'bridge' })
     },
     async subscribeToProviderEvents () {
-      const provider = this.provider
+      const provider = this.$store.state.provider
       if (!provider.on) {
         return
       }
@@ -127,7 +127,7 @@ export default {
     },
     async unsubscribeFromProviderEvents () {
       // Workaround for metamask widget > 9.0.3 (provider.off is undefined)
-      const provider = this.provider
+      const provider = this.$store.state.provider
       window.location.reload(false)
       if (!provider.off) {
         return
@@ -146,9 +146,11 @@ export default {
       }
     },
     async networkChanged () {
-      this.library = markRaw(new Web3Provider(this.provider))
-      this.network = markRaw(await this.library.getNetwork())
-      this.$store.commit('updateChainId', this.network.chainId)
+      const library = markRaw(new Web3Provider(this.$store.state.provider))
+      const network = markRaw(await library.getNetwork())
+
+      this.$store.commit('updateLibrary', library)
+      this.$store.commit('updateChainId', network.chainId)
     },
     async close () {
       this.resetApp()

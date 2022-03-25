@@ -133,14 +133,14 @@ export default {
     this.fetchPageData()
   },
   methods: {
+    resetData: function () {
+      Object.assign(this.$data, dataInitialState())
+    },
     async fetchPageData () {
       this.toggleLoader()
       this.fromChainData = getChainData(this.chainId)
       this.tokens = await EscrowService.getChainTokens(this.fromChainData.chain_id)
       this.toggleLoader()
-    },
-    resetData: function () {
-      Object.assign(this.$data, dataInitialState())
     },
     async getBalance () {
       this.toggleLoader()
@@ -149,7 +149,9 @@ export default {
       this.toggleLoader()
     },
     async confirmLock () {
-      await WalletService.lockAmount(this.library, this.address, this.amount)
+      this.toggleLoader()
+      await EscrowService.lockAmount(this.library, this.address, this.amount)
+      this.toggleLoader()
     }
   }
 }

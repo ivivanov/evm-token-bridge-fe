@@ -1,6 +1,8 @@
 import { createStore } from 'vuex'
 
 const initialState = {
+  provider: {},
+  library: {},
   account: '',
   fetching: false,
   connected: false,
@@ -12,6 +14,12 @@ const Store = createStore({
   mutations: {
     resetStore (state) {
       state = initialState
+    },
+    updateProvider (state, value) {
+      state.provider = value
+    },
+    updateLibrary (state, value) {
+      state.library = value
     },
     updateAccount (state, value) {
       state.account = value

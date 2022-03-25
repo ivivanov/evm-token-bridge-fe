@@ -1,7 +1,7 @@
-import Web3 from 'web3'
+import Ethers from '../helpers/ethers.js'
 import getChainContracts from '../constants/contracts.js'
-import { getChainData } from '../constants/chains.js'
 import WalletService from './wallet.js'
+import Store from '../store.js'
 
 // import MainEscrow from '../constants/abis/MainEscrow.json'
 import SideEscrow from '../constants/abis/SideEscrow.json'
@@ -29,20 +29,20 @@ class EscrowService {
 
   static async getSupportedTokens (chainId) {
     const sideEscrowAddress = getChainContracts(chainId).sideEscrow
-    const chainData = getChainData(chainId)
-    const Web3Client = new Web3(new Web3.providers.HttpProvider(chainData.rpc_url))
-    const contract = new Web3Client.eth.Contract(SideEscrow.abi, sideEscrowAddress)
+    const contract = Ethers.getContract(sideEscrowAddress, SideEscrow.abi, Store.state.library, Store.state.account)
 
-    return contract.methods.supportedTokens().call()
+    return contract.supportedTokens()
   }
-  // static async lockOnMain (library, address, amount) {
-  //     const escrow = getContract(MAIN_ESCROW, MainEscrow.abi, library, address)
-  //     const acme = getContract(ACME_TOKEN, AcmeToken.abi, library, address)
-  //     const receipt = await acme.increaseAllowance(escrow.address, amount)
-  //     console.log(receipt)
-  //     // lock
-  //     // await escrow.lock()
-  //   }
+
+  static async lockToken () {
+    // lock on main
+    // ##lock eth
+    // ##lock any
+
+    // lock on side
+    // ##lock eth
+    // ##lock any
+  }
 }
 
 export default EscrowService
