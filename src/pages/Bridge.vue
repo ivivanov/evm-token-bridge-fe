@@ -54,9 +54,6 @@
           >
             Please select one
           </option>
-          <option value="">
-            ETH
-          </option>
           <option
             v-for="(token, key) in tokens"
             :key="key"
@@ -97,11 +94,11 @@
 
 <script>
 import { mapState } from 'vuex'
-import WalletService from '@/services/wallet'
 import loader from '@/mixins/loader'
 import utilities from '@/mixins/utilities'
 import { getChainData, supportedChains } from '@/constants/chains'
-import getChainContracts from '@/constants/contracts'
+import WalletService from '@/services/wallet'
+import EscrowService from '@/services/escrow'
 
 const dataInitialState = function () {
   return {
@@ -136,18 +133,10 @@ export default {
     this.fetchPageData()
   },
   methods: {
-    fetchPageData () {
+    async fetchPageData () {
       this.toggleLoader()
       this.fromChainData = getChainData(this.chainId)
-      this.fromChainId = this.$store.state.chainId
-
-      const contracts = getChainContracts(this.fromChainId)
-      if (contracts && contracts.mainEscrow) {
-        this.tokens = contracts.tokens
-      } else {
-        // todo fetch tokens from smart contract - 'getSupportedTokens'
-        this.tokens = []
-      }
+      this.tokens = await EscrowService.getChainTokens(this.fromChainData.chain_id)
       this.toggleLoader()
     },
     resetData: function () {

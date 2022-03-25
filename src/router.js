@@ -23,6 +23,9 @@ const routes = [
 ]
 
 const Router = createRouter({
+  // If using gh pages for static serving
+  // there is an issue with the routing.
+  // quick fix: hash mode - https://stackoverflow.com/a/65502608
   history: createWebHashHistory(),
   routes: routes,
   linkExactActiveClass: 'on',

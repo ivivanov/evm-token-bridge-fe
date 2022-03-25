@@ -4,7 +4,7 @@ export const supportedChains = [
     short_name: 'loc',
     chain: 'ETH',
     network: 'local',
-    chain_id: -1,
+    chain_id: 31337,
     network_id: -1,
     rpc_url: 'http://localhost:8545',
     native_currency: {
