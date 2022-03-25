@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 
 import Bridge from '@/pages/Bridge.vue'
 import Claim from '@/pages/Claim.vue'
@@ -23,7 +23,7 @@ const routes = [
 ]
 
 const Router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes: routes,
   linkExactActiveClass: 'on',
   scrollBehavior (to, from, savedPosition) {
