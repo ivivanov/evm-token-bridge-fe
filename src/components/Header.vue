@@ -6,7 +6,7 @@
   >
     <div class="navbar-brand">
       <img
-        src="/img/logo.png"
+        src="img/logo.png"
         width="50"
       >
       <a

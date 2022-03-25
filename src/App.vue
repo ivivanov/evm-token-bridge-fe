@@ -100,8 +100,7 @@ export default {
       try {
         this.provider = await this.web3Modal.connect()
       } catch (err) {
-        console.log(err)
-        this.errorToast('Check your Metamask extension')
+        this.errorToast(err)
         return
       }
 
