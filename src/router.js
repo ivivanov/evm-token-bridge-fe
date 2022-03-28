@@ -2,7 +2,8 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 
 import Bridge from '@/pages/Bridge.vue'
 import Claim from '@/pages/Claim.vue'
-import Faucet from '@/pages/Faucet.vue'
+import Import from '@/pages/Import.vue'
+import Wrapper from '@/pages/Wrapper.vue'
 
 const routes = [
   {
@@ -16,9 +17,14 @@ const routes = [
     name: 'claim'
   },
   {
-    path: '/faucet',
-    component: Faucet,
-    name: 'faucet'
+    path: '/wrapper',
+    component: Wrapper,
+    name: 'wrapper'
+  },
+  {
+    path: '/import',
+    component: Import,
+    name: 'import'
   }
 ]
 

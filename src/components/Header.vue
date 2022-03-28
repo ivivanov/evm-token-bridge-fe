@@ -41,8 +41,13 @@
           </router-link>
         </div>
         <div class="navbar-item">
-          <router-link :to="{ name: 'faucet' }">
-            Faucet
+          <router-link :to="{ name: 'import' }">
+            Import
+          </router-link>
+        </div>
+        <div class="navbar-item">
+          <router-link :to="{ name: 'wrapper' }">
+            Wrapper
           </router-link>
         </div>
       </div>

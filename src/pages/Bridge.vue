@@ -1,6 +1,6 @@
 <template>
   <h1 class="subtitle is-4 has-text-centered">
-    EVM Token Bridge
+    Token Bridge
   </h1>
 
   <div class="field">
@@ -41,11 +41,11 @@
   </div>
 
   <div class="field">
-    <label class="label">Asset</label>
+    <label class="label">Token</label>
     <div class="control">
       <div class="select is-fullwidth">
         <select
-          v-model="selectedAsset"
+          v-model="selectedToken"
           @change="getBalance"
         >
           <option
@@ -98,14 +98,14 @@ import loader from '@/mixins/loader'
 import utilities from '@/mixins/utilities'
 import { getChainData, supportedChains } from '@/constants/chains'
 import WalletService from '@/services/wallet'
-import EscrowService from '@/services/escrow'
+import BridgeService from '@/services/bridge'
 
 const dataInitialState = function () {
   return {
     fromChainData: {},
     supportedChains: supportedChains,
     toChainId: -2,
-    selectedAsset: '',
+    selectedToken: {},
     selectedBalance: '0.0',
     tokens: [],
     amount: ''
@@ -130,27 +130,26 @@ export default {
     }
   },
   async mounted () {
-    this.fetchPageData()
+    await this.fetchPageData()
   },
   methods: {
     resetData: function () {
       Object.assign(this.$data, dataInitialState())
     },
     async fetchPageData () {
-      this.toggleLoader()
-      this.fromChainData = getChainData(this.chainId)
-      this.tokens = await EscrowService.getChainTokens(this.fromChainData.chain_id)
-      this.toggleLoader()
+      this.execWithLoader(async () => {
+        this.fromChainData = getChainData(this.chainId)
+        this.tokens = await BridgeService.getChainTokens(this.fromChainData.chain_id)
+      })
     },
     async getBalance () {
       this.toggleLoader()
-      const address = this.selectedAsset.address ? this.selectedAsset.address : ''
-      this.selectedBalance = await WalletService.getTokenBalance(address)
+      this.selectedBalance = await WalletService.getTokenBalance(this.selectedToken.address)
       this.toggleLoader()
     },
     async confirmLock () {
       this.toggleLoader()
-      await EscrowService.lockAmount(this.library, this.address, this.amount)
+      await BridgeService.lockAmount(this.library, this.address, this.amount)
       this.toggleLoader()
     }
   }

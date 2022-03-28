@@ -56,7 +56,6 @@ import { mapState } from 'vuex'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import utilities from '@/mixins/utilities'
-import toasts from '@/mixins/toasts'
 import { getChainData } from '@/constants/chains'
 
 export default {
@@ -65,8 +64,7 @@ export default {
     Footer
   },
   mixins: [
-    utilities,
-    toasts
+    utilities
   ],
   data () {
     return {
@@ -91,6 +89,8 @@ export default {
       cacheProvider: true,
       providerOptions: this.providerOptions
     })
+
+    // window.localStorage.setItem('tokens', JSON.stringify([]))
   },
   methods: {
     async onConnect () {
@@ -98,7 +98,7 @@ export default {
       try {
         provider = markRaw(await this.web3Modal.connect())
       } catch (err) {
-        this.errorToast(err)
+        // this.errorToast(err)
         return
       }
 
@@ -113,7 +113,6 @@ export default {
       this.$store.commit('updateConnected', true)
 
       await this.subscribeToProviderEvents()
-      this.$router.push({ name: 'bridge' })
     },
     async subscribeToProviderEvents () {
       const provider = this.$store.state.provider
