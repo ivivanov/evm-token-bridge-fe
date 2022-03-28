@@ -133,7 +133,6 @@ export default {
       selectedToken: 0,
       name: '',
       symbol: '',
-      sourceAddress: '0',
       sourceChainId: '',
       sourceTokens: [],
       wrappedTokens: []
@@ -162,7 +161,7 @@ export default {
     },
     async wrap () {
       this.execWithLoader(async () => {
-        await BridgeService.wrapToken(this.name, this.symbol, this.sourceAddress, this.sourceChainId)
+        await BridgeService.wrapToken(this.name, this.symbol, this.selectedToken.address, this.selectedToken.chainId)
       }, 'Error wrapping new token')
     }
   }

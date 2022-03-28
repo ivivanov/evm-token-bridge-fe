@@ -1,7 +1,7 @@
 const contracts = [
   {
     chainId: 4, // Rinkeby
-    bridge: '0x9cdAa0349427D2702414F4776A600cA0cF6e877e'
+    bridge: '0x1aCB2C028c39747FCb4b047d2DC1E23bB2Fa6EbE'
   },
   {
     chainId: 31337, // Hardhat localhost

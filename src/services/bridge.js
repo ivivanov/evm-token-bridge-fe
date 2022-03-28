@@ -25,7 +25,7 @@ class BridgeService {
   static wrapToken (name, symbol, sourceAddress, sourceChainId) {
     const bridgeAddress = getChainContracts(Store.state.chainId).bridge
     const contract = Ethers.getContract(bridgeAddress, Bridge.abi, Store.state.library, Store.state.account)
-
+    console.log(name, symbol, sourceAddress, sourceChainId)
     return contract.wrapToken(name, symbol, sourceAddress, sourceChainId)
   }
 
