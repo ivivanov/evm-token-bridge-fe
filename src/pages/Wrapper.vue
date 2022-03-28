@@ -5,7 +5,12 @@
 
   <article class="message">
     <div class="message-body">
-      Select on which network you want to wrap tokens from Metamask.
+      <div class="content">
+        <ol>
+          <li>To wrap tokens you must first import the source token</li>
+          <li>Select on which network you want to wrap tokens from Metamask</li>
+        </ol>
+      </div>
     </div>
   </article>
 

@@ -113,6 +113,7 @@ export default {
       this.$store.commit('updateConnected', true)
 
       await this.subscribeToProviderEvents()
+      this.$router.push({ name: 'import' })
     },
     async subscribeToProviderEvents () {
       const provider = this.$store.state.provider
