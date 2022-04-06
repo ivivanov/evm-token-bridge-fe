@@ -45,7 +45,7 @@
     <div class="control">
       <div class="control">
         <input
-          :value="selectedToken.chainId"
+          :value="selectedToken.nativeChainId"
           class="input"
           type="text"
           disabled
@@ -99,8 +99,8 @@
       <tr>
         <th>Name</th>
         <th>Symbol</th>
-        <th>Source Chain ID</th>
-        <th>Source Token</th>
+        <th>Address</th>
+        <th>Native Chain</th>
       </tr>
     </thead>
     <tbody>
@@ -110,8 +110,8 @@
       >
         <td>{{ t.name }}</td>
         <td>{{ t.symbol }}</td>
-        <td>{{ t.sourceChainId }}</td>
-        <td>{{ ellipseAddress(t.sourceToken) }}</td>
+        <td>{{ t.token }}</td>
+        <td>{{ t.nativeChain }}</td>
       </tr>
     </tbody>
   </table>
@@ -150,9 +150,6 @@ export default {
     await this.fetchPageData()
   },
   methods: {
-    setSourceChianId () {
-
-    },
     async fetchPageData () {
       this.execWithLoader(async () => {
         this.sourceTokens = JSON.parse(window.localStorage.getItem('tokens'))
@@ -161,7 +158,8 @@ export default {
     },
     async wrap () {
       this.execWithLoader(async () => {
-        await BridgeService.wrapToken(this.name, this.symbol, this.selectedToken.address, this.selectedToken.chainId)
+        await BridgeService.wrapToken(this.name, this.symbol, this.selectedToken.address, this.selectedToken.nativeChainId)
+        await this.fetchPageData()
       }, 'Error wrapping new token')
     }
   }

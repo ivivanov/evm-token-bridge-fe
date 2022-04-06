@@ -31,7 +31,7 @@
           <option
             v-for="(chain, key) in supportedChains"
             :key="key"
-            :value="chain.chain_id"
+            :value="chain.chainId"
           >
             {{ chain.name }}
           </option>
@@ -74,7 +74,7 @@
       <input
         v-model="amount"
         class="input"
-        type="number"
+        type="text"
         placeholder="Amount"
       >
     </div>
@@ -84,26 +84,66 @@
     <div class="control has-text-right">
       <button
         class="button is-link"
-        @click="confirmLock"
+        @click="lockOrBurn"
       >
         Next
       </button>
     </div>
   </div>
+
+  <h1 class="subtitle is-4 has-text-centered">
+    Claim Bridged Tokens
+  </h1>
+  <table class="table is-fullwidth">
+    <thead>
+      <tr>
+        <th>From</th>
+        <th>To</th>
+        <th>Token</th>
+        <th>Amount</th>
+        <th>Receiver</th>
+        <th />
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        v-for="(t, key) in claims"
+        :key="key"
+      >
+        <td>{{ t.sourceChain }}</td>
+        <td>{{ t.targetChain }}</td>
+        <td>{{ ellipseAddress(t.nativeToken) }}</td>
+        <td>{{ t.amount }}</td>
+        <td>{{ ellipseAddress(t.receiver) }}</td>
+        <td>
+          <button
+            class="button is-link is-small"
+            @click="mintOrRelease(key)"
+          >
+            Claim
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </template>
 
 <script>
 import { mapState } from 'vuex'
 import loader from '@/mixins/loader'
 import utilities from '@/mixins/utilities'
-import { getChainData, supportedChains } from '@/constants/chains'
+import { getChainData } from '@/constants/chains'
 import WalletService from '@/services/wallet'
 import BridgeService from '@/services/bridge'
+import { ethers } from 'ethers'
 
 const dataInitialState = function () {
   return {
     fromChainData: {},
-    supportedChains: supportedChains,
+    supportedChains: [
+      { name: 'Ethereum Ropsten', chainId: 3 },
+      { name: 'Ethereum Rinkeby', chainId: 4 }
+    ],
     toChainId: -2,
     selectedToken: {},
     selectedBalance: '0.0',
@@ -121,7 +161,8 @@ export default {
     return dataInitialState()
   },
   computed: mapState([
-    'chainId'
+    'chainId',
+    'claims'
   ]),
   watch: {
     chainId () {
@@ -139,18 +180,74 @@ export default {
     async fetchPageData () {
       this.execWithLoader(async () => {
         this.fromChainData = getChainData(this.chainId)
-        this.tokens = await BridgeService.getChainTokens(this.fromChainData.chain_id)
+        this.tokens = await BridgeService.getChainTokens(this.chainId)
       })
     },
     async getBalance () {
-      this.toggleLoader()
-      this.selectedBalance = await WalletService.getTokenBalance(this.selectedToken.address)
-      this.toggleLoader()
+      this.execWithLoader(async () => {
+        this.selectedBalance = await WalletService.getTokenBalance(this.selectedToken.address)
+      }, 'Get token balance error')
     },
-    async confirmLock () {
-      this.toggleLoader()
-      await BridgeService.lockAmount(this.library, this.address, this.amount)
-      this.toggleLoader()
+    async lockOrBurn () {
+      this.execWithLoader(async () => {
+        if (this.chainId === this.selectedToken.nativeChainId) { // this is native token
+          console.log('BridgeService.lockToken')
+          await BridgeService.lockToken(this.toChainId, this.selectedToken.address, this.amount)
+        } else { // this is wrapped token
+          console.log('BridgeService.burnToken')
+          await BridgeService.burnToken(this.selectedToken.address, this.amount)
+        }
+      }, 'Error sending lock tx')
+    },
+    async mintOrRelease (claimId) {
+      this.execWithLoader(async () => {
+        const claim = this.claims[claimId]
+
+        if (claim.targetChain === this.chainId) {
+          if (claim.type === 'mint') {
+            await BridgeService.mintToken(claim)
+          } else { // type is release
+            await BridgeService.releaseToken(claim)
+          }
+        } else { // prompt MM to switch network
+          const targetChain = getChainData(claim.targetChain)
+          const hexTargetChainId = ethers.utils.hexStripZeros(targetChain.chain_id)
+          // Check if MetaMask is installed
+          // MetaMask injects the global API into window.ethereum
+          if (window.ethereum) {
+            try {
+            // check if the chain to connect to is installed
+              await window.ethereum.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: hexTargetChainId }] // chainId must be in hexadecimal numbers
+              })
+            } catch (error) {
+              console.log(error)
+              // This error code indicates that the chain has not been added to MetaMask
+              // if it is not, then install it into the user MetaMask
+              if (error.code === 4902) {
+                try {
+                  await window.ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [
+                      {
+                        chainId: 4,
+                        rpcUrl: 'https://data-seed-prebsc-1-s1.binance.org:8545/'
+                      }
+                    ]
+                  })
+                } catch (addError) {
+                  console.error(addError)
+                }
+              }
+              console.error(error)
+            }
+          } else {
+          // if no window.ethereum then MetaMask is not installed
+            alert('MetaMask is not installed. Please consider installing it: https://metamask.io/download.html')
+          }
+        }
+      })
     }
   }
 }

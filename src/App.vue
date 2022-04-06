@@ -8,7 +8,7 @@
       id="main"
       class="columns is-centered"
     >
-      <div class="column is-8">
+      <div class="column">
         <div class="box">
           <router-view v-if="connected" />
           <p v-else>
@@ -113,7 +113,7 @@ export default {
       this.$store.commit('updateConnected', true)
 
       await this.subscribeToProviderEvents()
-      this.$router.push({ name: 'import' })
+      this.$router.push({ name: 'bridge' })
     },
     async subscribeToProviderEvents () {
       const provider = this.$store.state.provider
@@ -160,8 +160,8 @@ export default {
     },
     async resetApp () {
       await this.web3Modal.clearCachedProvider()
-      localStorage.removeItem('WEB3_CONNECT_CACHED_PROVIDER')
-      localStorage.removeItem('walletconnect')
+      window.localStorage.removeItem('WEB3_CONNECT_CACHED_PROVIDER')
+      window.localStorage.removeItem('walletconnect')
       await this.unsubscribeFromProviderEvents()
       this.$store.commit('resetStore')
     }

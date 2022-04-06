@@ -1,7 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
 import Bridge from '@/pages/Bridge.vue'
-import Claim from '@/pages/Claim.vue'
 import Import from '@/pages/Import.vue'
 import Wrapper from '@/pages/Wrapper.vue'
 
@@ -10,11 +9,6 @@ const routes = [
     path: '/bridge',
     component: Bridge,
     name: 'bridge'
-  },
-  {
-    path: '/claim',
-    component: Claim,
-    name: 'claim'
   },
   {
     path: '/wrapper',

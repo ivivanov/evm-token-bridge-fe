@@ -6,7 +6,8 @@ const initialState = {
   account: '',
   fetching: false,
   connected: false,
-  chainId: 1
+  chainId: 1,
+  claims: []
 }
 
 const Store = createStore({
@@ -32,6 +33,9 @@ const Store = createStore({
     },
     updateChainId (state, value) {
       state.chainId = value
+    },
+    addClaim (state, value) {
+      state.claims.push(value)
     }
   }
 })

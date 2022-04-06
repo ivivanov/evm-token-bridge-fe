@@ -10,15 +10,15 @@
   </article>
 
   <div class="field">
-    <label class="label">Token Contract Address</label>
+    <label class="label">Token Address</label>
     <div class="control">
       <div class="control">
         <input
           v-model="address"
           class="input"
           type="text"
-          @paste="parseAddress"
-          @change="parseAddress"
+          @paste.prevent="parseAddress"
+          @change.prevent="parseAddress"
         >
       </div>
     </div>
@@ -53,11 +53,11 @@
   </div>
 
   <div class="field">
-    <label class="label">Chain ID</label>
+    <label class="label">Native chain</label>
     <div class="control">
       <div class="control">
         <input
-          :value="chainId"
+          :value="nativeChainId"
           disabled
           class="input"
           type="number"
@@ -70,7 +70,7 @@
     <div class="control has-text-right">
       <button
         class="button is-link"
-        @click="importToken"
+        @click.prevent="importToken"
       >
         Import
       </button>
@@ -85,8 +85,8 @@
       <tr>
         <th>Name</th>
         <th>Symbol</th>
-        <th>Chain ID</th>
         <th>Address</th>
+        <th>Native chain</th>
       </tr>
     </thead>
     <tbody>
@@ -96,8 +96,8 @@
       >
         <td>{{ t.name }}</td>
         <td>{{ t.symbol }}</td>
-        <td>{{ t.chainId }}</td>
-        <td>{{ ellipseAddress(t.address) }}</td>
+        <td>{{ t.address }}</td>
+        <td>{{ t.nativeChainId }}</td>
       </tr>
     </tbody>
   </table>
@@ -107,6 +107,7 @@
 import { mapState } from 'vuex'
 import loader from '@/mixins/loader'
 import utilities from '@/mixins/utilities'
+import BridgeService from '@/services/bridge'
 import WalletService from '@/services/wallet'
 
 export default {
@@ -119,6 +120,7 @@ export default {
       address: '',
       name: '',
       symbol: '',
+      nativeChainId: '',
       sourceTokens: []
     }
   },
@@ -139,12 +141,12 @@ export default {
         this.sourceTokens = JSON.parse(window.localStorage.getItem('tokens'))
       }, 'Error msg')
     },
-    async importToken () {
+    importToken () {
       const newToken = {
         address: this.address,
         name: this.name,
         symbol: this.symbol,
-        chainId: this.chainId
+        nativeChainId: this.nativeChainId
       }
 
       let tokens = JSON.parse(window.localStorage.getItem('tokens'))
@@ -162,9 +164,16 @@ export default {
           this.address = evt.clipboardData.getData('text')
         }
 
-        this.name = await WalletService.getTokenName(this.address)
-        this.symbol = await WalletService.getTokenSymbol(this.address)
-        // this.balance = await WalletService.getTokenBalance(this.address)
+        const token = await BridgeService.getWrappedToken(this.address)
+        if (token) {
+          this.name = token.name
+          this.symbol = token.symbol
+          this.nativeChainId = token.nativeChain
+        } else {
+          this.name = await WalletService.getTokenName(this.address)
+          this.symbol = await WalletService.getTokenSymbol(this.address)
+          this.nativeChainId = this.chainId
+        }
       }, 'Invalid address')
     }
   }

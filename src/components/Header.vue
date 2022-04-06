@@ -36,11 +36,6 @@
           </router-link>
         </div>
         <div class="navbar-item">
-          <router-link :to="{ name: 'claim' }">
-            Claim
-          </router-link>
-        </div>
-        <div class="navbar-item">
           <router-link :to="{ name: 'import' }">
             Import
           </router-link>
