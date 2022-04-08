@@ -7,7 +7,8 @@ const initialState = {
   fetching: false,
   connected: false,
   chainId: 1,
-  claims: []
+  claims: [],
+  wrappedTokens: []
 }
 
 const Store = createStore({
@@ -36,6 +37,9 @@ const Store = createStore({
     },
     addClaim (state, value) {
       state.claims.push(value)
+    },
+    setWrappedTokens (state, value) {
+      state.wrappedTokens = value
     }
   }
 })

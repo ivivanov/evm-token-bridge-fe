@@ -41,8 +41,8 @@
           </router-link>
         </div>
         <div class="navbar-item">
-          <router-link :to="{ name: 'wrapper' }">
-            Wrapper
+          <router-link :to="{ name: 'wrapped' }">
+            Wrapped
           </router-link>
         </div>
       </div>

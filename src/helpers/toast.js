@@ -2,7 +2,7 @@ import * as bulmaToast from 'bulma-toast'
 
 export function errorToast (msg) {
   bulmaToast.toast({
-    duration: 5000,
+    duration: 10000,
     offsetTop: '50px',
     position: 'top-right',
     closeOnClick: true,
@@ -15,7 +15,7 @@ export function errorToast (msg) {
 
 export function successToast (msg) {
   bulmaToast.toast({
-    duration: 5000,
+    duration: 10000,
     offsetTop: '50px',
     position: 'top-right',
     closeOnClick: true,

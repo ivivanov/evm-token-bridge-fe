@@ -2,7 +2,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 
 import Bridge from '@/pages/Bridge.vue'
 import Import from '@/pages/Import.vue'
-import Wrapper from '@/pages/Wrapper.vue'
+import Wrapped from '@/pages/Wrapped.vue'
 
 const routes = [
   {
@@ -11,9 +11,9 @@ const routes = [
     name: 'bridge'
   },
   {
-    path: '/wrapper',
-    component: Wrapper,
-    name: 'wrapper'
+    path: '/wrapped',
+    component: Wrapped,
+    name: 'wrapped'
   },
   {
     path: '/import',

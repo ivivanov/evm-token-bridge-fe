@@ -1,15 +1,11 @@
 const contracts = [
   {
     chainId: 3, // Ropsten
-    bridge: '0x1aCB2C028c39747FCb4b047d2DC1E23bB2Fa6EbE'
+    bridge: '0x96f44B19fa03f2dE70F11432f1BB3257fF88d3a0'
   },
   {
     chainId: 4, // Rinkeby
-    bridge: '0x9156bc4c585b0FF37DF0fD59e2C02958b807f5F4'
-  },
-  {
-    chainId: 42, // Kovan
-    bridge: '0x46813d84CAb0AB86dBb9CEB8622bC962aEc77914'
+    bridge: '0x76cfFf6732CeeeC87Ce30ab64df9cef22d4B8aD1'
   },
   {
     chainId: 31337, // Hardhat localhost

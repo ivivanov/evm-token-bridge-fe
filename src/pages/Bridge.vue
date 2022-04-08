@@ -3,6 +3,15 @@
     Token Bridge
   </h1>
 
+  <article class="message">
+    <div class="message-body">
+      Supported networks: Rinkeby, Ropsten. Get some test tokens form <a
+        href="https://faucets.chain.link/rinkeby"
+        target="_blank"
+      >here</a>.
+    </div>
+  </article>
+
   <div class="field">
     <label class="label">From</label>
     <div class="control">
@@ -102,7 +111,7 @@
         <th>Token</th>
         <th>Amount</th>
         <th>Receiver</th>
-        <th />
+        <th>Action</th>
       </tr>
     </thead>
     <tbody>
@@ -112,7 +121,7 @@
       >
         <td>{{ t.sourceChain }}</td>
         <td>{{ t.targetChain }}</td>
-        <td>{{ ellipseAddress(t.nativeToken) }}</td>
+        <td>{{ ellipseAddress(t.token) }}</td>
         <td>{{ t.amount }}</td>
         <td>{{ ellipseAddress(t.receiver) }}</td>
         <td>
@@ -120,7 +129,7 @@
             class="button is-link is-small"
             @click="mintOrRelease(key)"
           >
-            Claim
+            {{ chainId == t.sourceChain ? 'Swtich' : 'Claim' }}
           </button>
         </td>
       </tr>
@@ -152,6 +161,11 @@ const dataInitialState = function () {
   }
 }
 
+const txType = Object.freeze({
+  MINT: 'mint',
+  RELEASE: 'release'
+})
+
 export default {
   mixins: [
     loader,
@@ -180,7 +194,23 @@ export default {
     async fetchPageData () {
       this.execWithLoader(async () => {
         this.fromChainData = getChainData(this.chainId)
-        this.tokens = await BridgeService.getChainTokens(this.chainId)
+        this.tokens = await BridgeService.getImportedTokens(this.chainId)
+        const wrappedTokens = await BridgeService.getWrappedTokens()
+        this.$store.commit('setWrappedTokens', wrappedTokens)
+
+        // add wrapped tokens to the dropdown
+        for (const i in wrappedTokens) {
+          if (Object.hasOwnProperty.call(wrappedTokens, i)) {
+            const wToken = wrappedTokens[i]
+            this.tokens.push({
+              name: wToken.name,
+              symbol: wToken.symbol,
+              address: wToken.wrappedToken,
+              sourceAddress: wToken.token,
+              sourceChainId: wToken.sourceChain
+            })
+          }
+        }
       })
     },
     async getBalance () {
@@ -190,21 +220,18 @@ export default {
     },
     async lockOrBurn () {
       this.execWithLoader(async () => {
-        if (this.chainId === this.selectedToken.nativeChainId) { // this is native token
-          console.log('BridgeService.lockToken')
+        if (this.chainId === this.selectedToken.chainId) { // this is native token
           await BridgeService.lockToken(this.toChainId, this.selectedToken.address, this.amount)
         } else { // this is wrapped token
-          console.log('BridgeService.burnToken')
-          await BridgeService.burnToken(this.selectedToken.address, this.amount)
+          await BridgeService.burnToken(this.toChainId, this.selectedToken.address, this.amount)
         }
-      }, 'Error sending lock tx')
+      }, 'Error bridging token')
     },
     async mintOrRelease (claimId) {
       this.execWithLoader(async () => {
         const claim = this.claims[claimId]
-
         if (claim.targetChain === this.chainId) {
-          if (claim.type === 'mint') {
+          if (claim.type === txType.MINT) {
             await BridgeService.mintToken(claim)
           } else { // type is release
             await BridgeService.releaseToken(claim)
@@ -247,7 +274,7 @@ export default {
             alert('MetaMask is not installed. Please consider installing it: https://metamask.io/download.html')
           }
         }
-      })
+      }, 'Claiming token failed')
     }
   }
 }

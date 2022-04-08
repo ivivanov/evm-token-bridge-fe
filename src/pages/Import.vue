@@ -53,20 +53,6 @@
   </div>
 
   <div class="field">
-    <label class="label">Native chain</label>
-    <div class="control">
-      <div class="control">
-        <input
-          :value="nativeChainId"
-          disabled
-          class="input"
-          type="number"
-        >
-      </div>
-    </div>
-  </div>
-
-  <div class="field">
     <div class="control has-text-right">
       <button
         class="button is-link"
@@ -86,18 +72,18 @@
         <th>Name</th>
         <th>Symbol</th>
         <th>Address</th>
-        <th>Native chain</th>
+        <th>Chain Id</th>
       </tr>
     </thead>
     <tbody>
       <tr
-        v-for="(t, key) in sourceTokens"
+        v-for="(t, key) in tokens"
         :key="key"
       >
         <td>{{ t.name }}</td>
         <td>{{ t.symbol }}</td>
         <td>{{ t.address }}</td>
-        <td>{{ t.nativeChainId }}</td>
+        <td>{{ t.chainId }}</td>
       </tr>
     </tbody>
   </table>
@@ -107,7 +93,6 @@
 import { mapState } from 'vuex'
 import loader from '@/mixins/loader'
 import utilities from '@/mixins/utilities'
-import BridgeService from '@/services/bridge'
 import WalletService from '@/services/wallet'
 
 export default {
@@ -120,43 +105,37 @@ export default {
       address: '',
       name: '',
       symbol: '',
-      nativeChainId: '',
-      sourceTokens: []
+      tokens: []
     }
   },
   computed: mapState([
     'chainId'
   ]),
-  watch: {
-    chainId () {
-      this.fetchPageData()
-    }
-  },
   async mounted () {
-    await this.fetchPageData()
+    this.execWithLoader(async () => {
+      await this.fetchPageData()
+    }, 'Something went terribly wrong')
   },
   methods: {
-    async fetchPageData () {
+    async importToken () {
       this.execWithLoader(async () => {
-        this.sourceTokens = JSON.parse(window.localStorage.getItem('tokens'))
-      }, 'Error msg')
-    },
-    importToken () {
-      const newToken = {
-        address: this.address,
-        name: this.name,
-        symbol: this.symbol,
-        nativeChainId: this.nativeChainId
-      }
+        const newToken = {
+          address: this.address,
+          name: this.name,
+          symbol: this.symbol,
+          chainId: this.chainId
+        }
 
-      let tokens = JSON.parse(window.localStorage.getItem('tokens'))
-      if (!tokens) {
-        tokens = []
-      }
+        let tokens = JSON.parse(window.localStorage.getItem('tokens'))
+        if (!tokens) {
+          tokens = []
+        }
 
-      tokens.push(newToken)
-      window.localStorage.setItem('tokens', JSON.stringify(tokens))
-      this.sourceTokens = tokens
+        tokens.push(newToken)
+        window.localStorage.setItem('tokens', JSON.stringify(tokens))
+        this.tokens = tokens
+        await this.fetchPageData()
+      }, 'Error fetching imported tokens')
     },
     async parseAddress (evt) {
       this.execWithLoader(async () => {
@@ -164,17 +143,12 @@ export default {
           this.address = evt.clipboardData.getData('text')
         }
 
-        const token = await BridgeService.getWrappedToken(this.address)
-        if (token) {
-          this.name = token.name
-          this.symbol = token.symbol
-          this.nativeChainId = token.nativeChain
-        } else {
-          this.name = await WalletService.getTokenName(this.address)
-          this.symbol = await WalletService.getTokenSymbol(this.address)
-          this.nativeChainId = this.chainId
-        }
-      }, 'Invalid address')
+        this.name = await WalletService.getTokenName(this.address)
+        this.symbol = await WalletService.getTokenSymbol(this.address)
+      }, 'Address does not exist on this network')
+    },
+    async fetchPageData () {
+      this.tokens = JSON.parse(window.localStorage.getItem('tokens'))
     }
   }
 }
