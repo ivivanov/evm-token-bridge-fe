@@ -45,6 +45,11 @@
             Wrapped
           </router-link>
         </div>
+        <div class="navbar-item">
+          <router-link :to="{ name: 'history' }">
+            History
+          </router-link>
+        </div>
       </div>
 
       <div class="navbar-end">
