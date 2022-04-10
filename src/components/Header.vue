@@ -11,10 +11,11 @@
       >
       <a
         role="button"
-        class="navbar-burger"
         aria-label="menu"
         aria-expanded="false"
         data-target="navbarBasicExample"
+        :class="showNav ? 'is-active navbar-burger' : 'navbar-burger'"
+        @click.prevent="showNav = !showNav"
       >
         <span aria-hidden="true" />
         <span aria-hidden="true" />
@@ -24,7 +25,7 @@
 
     <div
       id="navbarBasicExample"
-      class="navbar-menu"
+      :class="showNav ? 'is-active navbar-menu' : 'navbar-menu'"
     >
       <div
         v-if="connected"
@@ -97,7 +98,8 @@ export default {
   data () {
     return {
       chainData: {},
-      blockie: ''
+      blockie: '',
+      showNav: false
     }
   },
   computed: mapState([
